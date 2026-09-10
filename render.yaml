@@ -1,0 +1,7 @@
+# Render blueprint — deploy with "New +" -> "Blueprint" and this repo.
+services:
+  - type: web
+    name: alphadesk
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health

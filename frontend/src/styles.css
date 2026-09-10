@@ -1,0 +1,288 @@
+/* AlphaDesk — design tokens
+   Palette drawn from printed equity research: cool paper, deep green ink,
+   banknote green for the brand and gains, sindoor red for losses, and a
+   chart blue reserved for benchmarks. One bold element: large serif
+   numerals in the metric bands. Everything else stays quiet. */
+
+:root {
+  --paper: #eef1ec;
+  --panel: #f7f8f5;
+  --ink: #17211b;
+  --muted: #66716a;
+  --rule: #d5dbd3;
+  --green: #0e6e4b;
+  --green-soft: #e0ece5;
+  --red: #c4442c;
+  --blue: #2851a3;
+  --serif: "Instrument Serif", georgia, serif;
+  --sans: "Familjen Grotesk", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15.5px;
+  line-height: 1.55;
+}
+
+#root { min-height: 100vh; display: flex; flex-direction: column; }
+
+.wrap { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+
+a { color: var(--green); }
+
+:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------- header */
+
+.masthead {
+  border-bottom: 1px solid var(--ink);
+  padding: 22px 0 0;
+}
+
+.masthead-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-family: var(--serif);
+  font-size: 40px;
+  letter-spacing: 0.01em;
+}
+
+.brand em { color: var(--green); font-style: italic; }
+
+.tagline { color: var(--muted); max-width: 42ch; }
+
+.tabs { display: flex; gap: 4px; margin-top: 14px; flex-wrap: wrap; }
+
+.tab {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 8px 14px 10px;
+  font: inherit;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.tab:hover { color: var(--ink); }
+
+.tab.active {
+  color: var(--ink);
+  border-bottom-color: var(--green);
+}
+
+/* ---------------------------------------------------------- layout */
+
+main.wrap { flex: 1; padding: 26px 0 48px; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 20px 22px;
+  margin-bottom: 22px;
+}
+
+.panel-title {
+  font-family: var(--serif);
+  font-size: 24px;
+  margin: 0 0 4px;
+}
+
+.panel-sub { color: var(--muted); margin: 0 0 16px; max-width: 70ch; }
+
+/* --------------------------------------------------------- controls */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 6px;
+}
+
+.field { display: flex; flex-direction: column; gap: 4px; }
+
+.field > span { font-size: 13px; color: var(--muted); }
+
+input, select {
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 8px 10px;
+  min-width: 0;
+}
+
+input:hover, select:hover { border-color: var(--muted); }
+
+button.btn {
+  font: inherit;
+  font-weight: 600;
+  border: 1px solid var(--green);
+  background: var(--green);
+  color: #fff;
+  border-radius: 4px;
+  padding: 9px 18px;
+  cursor: pointer;
+}
+
+button.btn:hover { background: #0b5a3d; }
+
+button.btn:disabled { opacity: 0.55; cursor: default; }
+
+button.ghost {
+  font: inherit;
+  background: none;
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  border-radius: 4px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+button.ghost:hover { border-color: var(--ink); }
+
+button.linklike {
+  font: inherit;
+  background: none;
+  border: none;
+  color: var(--green);
+  cursor: pointer;
+  padding: 4px 6px;
+  text-decoration: underline;
+}
+
+button.linklike.danger { color: var(--red); }
+
+.hint { font-size: 13.5px; color: var(--muted); max-width: 78ch; }
+
+.error {
+  border-left: 3px solid var(--red);
+  background: #f6e9e5;
+  color: #7a2a1a;
+  padding: 10px 14px;
+  border-radius: 0 4px 4px 0;
+  margin: 12px 0;
+}
+
+/* ------------------------------------------------------ metric band */
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 18px 22px;
+  margin: 18px 0 6px;
+}
+
+.metric { border-top: 2px solid var(--ink); padding-top: 8px; }
+
+.metric .value {
+  font-family: var(--serif);
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+.metric .label { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+.pos { color: var(--green); }
+.neg { color: var(--red); }
+
+/* ----------------------------------------------------------- tables */
+
+table.tbl { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+
+.tbl th {
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid var(--ink);
+  padding: 8px 10px 6px;
+}
+
+.tbl td { border-bottom: 1px solid var(--rule); padding: 8px 10px; }
+
+.tbl td.num, .tbl th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------- heatmap */
+
+.heat { display: grid; gap: 3px; font-size: 13px; }
+
+.heat .cell {
+  padding: 8px 4px;
+  text-align: center;
+  border-radius: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.heat .head { color: var(--muted); background: none; }
+
+/* ------------------------------------------------------ quote header */
+
+.quote-row {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.quote-name { font-family: var(--serif); font-size: 28px; }
+
+.quote-price { font-family: var(--serif); font-size: 40px; }
+
+.quote-change { font-weight: 600; font-size: 18px; }
+
+/* ------------------------------------------------------ saved list */
+
+.saved-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--rule);
+  padding: 8px 2px;
+  flex-wrap: wrap;
+}
+
+.saved-item .meta { color: var(--muted); font-size: 13.5px; }
+
+/* ------------------------------------------------------------ footer */
+
+footer {
+  border-top: 1px solid var(--rule);
+  padding: 16px 0 28px;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.chart-note { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+.legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13.5px; margin: 4px 0 8px; }
+
+.legend .key { display: inline-block; width: 18px; height: 3px; margin-right: 6px; vertical-align: middle; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+
+@media (max-width: 640px) {
+  .brand { font-size: 32px; }
+  .metric .value { font-size: 26px; }
+  .panel { padding: 16px; }
+}
