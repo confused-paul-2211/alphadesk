@@ -286,3 +286,19 @@ footer {
   .metric .value { font-size: 26px; }
   .panel { padding: 16px; }
 }
+
+.pill {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 2px 9px 3px;
+  font-family: "Familjen Grotesk", system-ui, sans-serif;
+  font-size: 11px;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper, #EEF1EC);
+  background: var(--brand, #0E6E4B);
+  border-radius: 999px;
+  vertical-align: middle;
+  transform: translateY(-4px);
+}

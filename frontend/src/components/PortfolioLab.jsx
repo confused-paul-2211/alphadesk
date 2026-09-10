@@ -13,6 +13,13 @@ import {
 } from "../ui.jsx";
 
 let nextId = 100;
+
+function avgPairwise(matrix) {
+  let sum = 0, n = 0;
+  for (let i = 0; i < matrix.length; i++)
+    for (let j = i + 1; j < matrix.length; j++) { sum += matrix[i][j]; n++; }
+  return n ? sum / n : 0;
+}
 const DEFAULT_ROWS = [
   { id: 1, ticker: "RELIANCE.NS", weight: 30 },
   { id: 2, ticker: "TCS.NS", weight: 25 },
@@ -289,12 +296,22 @@ export default function PortfolioLab() {
         </Panel>
       )}
 
-      {result?.correlation && (
+      {result?.correlation && result.correlation.tickers.length <= 15 && (
         <Panel
           title="Correlation of daily returns"
           sub="Green cells move together; red cells move opposite. Low or negative correlation is where diversification comes from."
         >
           <Heatmap tickers={result.correlation.tickers} matrix={result.correlation.matrix} />
+        </Panel>
+      )}
+
+      {result?.correlation && result.correlation.tickers.length > 15 && (
+        <Panel title="Correlation of daily returns">
+          <p className="note">
+            Average pairwise correlation across {result.correlation.tickers.length} holdings:{" "}
+            {fmtNum(avgPairwise(result.correlation.matrix), 2)}. (The cell-by-cell heatmap
+            is shown for portfolios of 15 holdings or fewer — beyond that it stops being readable.)
+          </p>
         </Panel>
       )}
     </>

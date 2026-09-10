@@ -45,7 +45,7 @@ class Holding(BaseModel):
 
 
 class AnalyzeRequest(BaseModel):
-    holdings: list[Holding] = Field(min_length=1, max_length=15)
+    holdings: list[Holding] = Field(min_length=1, max_length=100)
     period: str = "1y"
     benchmark: str = "^NSEI"
     risk_free: float = Field(default=0.06, ge=0, le=0.25)
@@ -53,7 +53,7 @@ class AnalyzeRequest(BaseModel):
 
 class SavePortfolioRequest(BaseModel):
     name: str = Field(min_length=1, max_length=60)
-    holdings: list[Holding] = Field(min_length=1, max_length=15)
+    holdings: list[Holding] = Field(min_length=1, max_length=100)
 
 
 def _clean_tickers(raw: list[str], lo: int = 1, hi: int = 15) -> list[str]:
@@ -69,7 +69,12 @@ def _clean_tickers(raw: list[str], lo: int = 1, hi: int = 15) -> list[str]:
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "service": "alphadesk"}
+    import os
+    return {
+        "status": "ok",
+        "service": "alphadesk",
+        "demo": bool(os.environ.get("ALPHADESK_DEMO")),
+    }
 
 
 @app.get("/api/quote/{ticker}")

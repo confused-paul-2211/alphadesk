@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Compare from "./components/Compare.jsx";
 import Frontier from "./components/Frontier.jsx";
 import PortfolioLab from "./components/PortfolioLab.jsx";
@@ -13,14 +13,25 @@ const TABS = [
 
 export default function App() {
   const [tab, setTab] = useState("explorer");
+  const [demo, setDemo] = useState(false);
   const Active = TABS.find((t) => t.id === tab).view;
+
+  useEffect(() => {
+    fetch("/api/health")
+      .then((r) => r.json())
+      .then((h) => setDemo(Boolean(h.demo)))
+      .catch(() => {});
+  }, []);
 
   return (
     <>
       <header className="masthead">
         <div className="wrap">
           <div className="masthead-top">
-            <div className="brand">Alpha<em>Desk</em></div>
+            <div className="brand">
+              Alpha<em>Desk</em>
+              {demo && <span className="pill">demo data</span>}
+            </div>
             <p className="tagline">
               Equity research and portfolio analytics, built on free market data.
             </p>

@@ -70,6 +70,8 @@ Open http://localhost:5173. The dev server proxies `/api` to the backend, so it 
 cd backend && python test_offline.py
 ```
 
+**Demo mode (no internet needed at all):** start the backend with `ALPHADESK_DEMO=1 uvicorn main:app --reload --port 8000` and the whole app runs on a *seeded synthetic market* — a one-factor model with realistic correlations and betas (see `backend/demo.py`). A "demo data" badge appears in the masthead so nobody mistakes it for real prices. Built for classrooms, flaky WiFi, and grading sessions; the numbers are plausible but entirely fictional.
+
 ---
 
 ## Ticker cheat sheet (Yahoo symbols)

@@ -92,3 +92,72 @@ if __name__ == "__main__":
     test_analytics()
     test_api_wiring()
     print("\nAll offline tests passed.")
+
+
+def test_matrix_from_raw():
+    """Batched-download post-processing: shapes, bad-symbol detection."""
+    import numpy as np
+    import pandas as pd
+    from market import _matrix_from_raw
+
+    idx = pd.date_range("2026-01-01", periods=5, freq="B")
+    cols = pd.MultiIndex.from_product([["Close", "Open"], ["AAA", "BBB", "BAD"]])
+    data = np.random.rand(5, 6) * 100
+    raw = pd.DataFrame(data, index=idx, columns=cols)
+    raw[("Close", "BAD")] = float("nan")
+
+    try:
+        _matrix_from_raw(raw, ["AAA", "BBB", "BAD"])
+        raise AssertionError("should have flagged the dead symbol")
+    except ValueError as e:
+        assert "BAD" in str(e)
+
+    ok = _matrix_from_raw(raw, ["AAA", "BBB"])
+    assert list(ok.columns) == ["AAA", "BBB"] and len(ok) == 5
+    print("matrix post-processing: bad-symbol detection + alignment OK")
+
+
+test_matrix_from_raw()
+
+
+def test_derived_fundamentals():
+    """Statement-based ratio derivation with Reliance-like magnitudes."""
+    from market import _derive_fundamentals, _row
+    import pandas as pd
+
+    d = _derive_fundamentals(
+        price=1279.0, mcap=17.31e12, shares=13.53e9,
+        net_income=6.96e11, revenue=9.6e12, equity=8.3e12, ttm_divs=5.5,
+    )
+    eps = 6.96e11 / 13.53e9
+    assert abs(d["eps"] - eps) < 0.01
+    assert abs(d["pe_trailing"] - 1279.0 / eps) < 0.05          # ~24.9x
+    assert abs(d["pb"] - 17.31e12 / 8.3e12) < 0.01              # ~2.09x
+    assert abs(d["roe"] - 6.96e11 / 8.3e12) < 1e-4              # ~8.4%
+    assert abs(d["net_margin"] - 6.96e11 / 9.6e12) < 1e-4       # ~7.3%
+    assert abs(d["dividend_yield"] - 5.5 / 1279.0) < 1e-5       # ~0.43%
+
+    # guards: loss-maker has no meaningful P/E; broken equity is skipped
+    d2 = _derive_fundamentals(1279.0, None, 13.53e9, -1e10, 9.6e12, 0, None)
+    assert "pe_trailing" not in d2 and "pb" not in d2 and "roe" not in d2
+    assert d2["net_margin"] < 0
+
+    # _row: picks the first matching label, newest column
+    df = pd.DataFrame({"2026": [10.0], "2025": [8.0]}, index=["Net Income"])
+    assert _row(df, "Net Income Common Stockholders", "Net Income") == 10.0
+    assert _row(df, "Nonexistent") is None
+    print("derived fundamentals: ratios, guards, row lookup OK")
+
+
+def test_fundamentals_resilience_offline():
+    """With no network at all, get_fundamentals must degrade to nulls, never raise."""
+    from market import get_fundamentals
+    out = get_fundamentals("RELIANCE.NS")
+    assert out["ticker"] == "RELIANCE.NS"
+    assert "pe_trailing" in out and "beta" in out
+    print("no-network resilience: graceful nulls, no exception "
+          f"(pe={out['pe_trailing']}, beta={out['beta']})")
+
+
+test_derived_fundamentals()
+test_fundamentals_resilience_offline()

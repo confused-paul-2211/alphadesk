@@ -131,7 +131,7 @@ export default function Frontier() {
               ].map(({ name, p }) => (
                 <tr key={name}>
                   <td>{name}</td>
-                  <td className="num pos">{fmtPct(p.ret, 1)}</td>
+                  <td className={`num ${p.ret >= 0 ? "pos" : "neg"}`}>{fmtPct(p.ret, 1)}</td>
                   <td className="num">{fmtPct(p.vol, 1)}</td>
                   <td className="num">{fmtNum(p.sharpe)}</td>
                   <td>

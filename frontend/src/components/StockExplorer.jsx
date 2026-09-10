@@ -100,11 +100,11 @@ export default function StockExplorer() {
             <Metric label="Dividend yield" value={yieldPct(f?.dividend_yield)} />
             <Metric label="Return on equity" value={fmtPct(f?.roe, 1)} tone={toneOf(f?.roe)} />
             <Metric label="Net margin" value={fmtPct(f?.net_margin, 1)} tone={toneOf(f?.net_margin)} />
-            <Metric label="Beta (Yahoo)" value={fmtNum(f?.beta)} />
+            <Metric label="Beta (1y)" value={fmtNum(f?.beta)} />
           </div>
           <p className="hint">
             52-week range: {fmtNum(q.year_low)} to {fmtNum(q.year_high)} {q.currency}.
-            Fields Yahoo doesn’t publish for this listing show as “—”.
+            Fields the data source can’t supply right now show as “—”.
           </p>
         </Panel>
       )}
