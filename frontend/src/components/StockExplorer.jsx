@@ -3,6 +3,7 @@ import {
   Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 import { getFundamentals, getHistory, getQuote } from "../api.js";
+import { SECTOR_LIST, bySector } from "../universe.js";
 import {
   ErrorNote, Field, Metric, Panel, PERIODS,
   fmtBig, fmtDate, fmtNum, fmtPct, toneOf,
@@ -14,13 +15,14 @@ const yieldPct = (v) => (v == null ? "—" : `${(v < 1 ? v * 100 : v).toFixed(2)
 
 export default function StockExplorer() {
   const [ticker, setTicker] = useState("RELIANCE.NS");
+  const [custom, setCustom] = useState(false);
   const [period, setPeriod] = useState("1y");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
 
-  async function load() {
-    const symbol = ticker.trim().toUpperCase();
+  async function load(sym) {
+    const symbol = (sym ?? ticker).trim().toUpperCase();
     if (!symbol) return;
     setLoading(true);
     setError(null);
@@ -46,18 +48,42 @@ export default function StockExplorer() {
     <>
       <Panel
         title="Stock explorer"
-        sub="Live quote, valuation snapshot, and price history for any Yahoo Finance symbol — RELIANCE.NS or TCS.NS for NSE, AAPL or MSFT for the US, ^NSEI for the NIFTY 50 index."
+        sub="Pick any of 100 NSE large-caps from the dropdown — or switch to a custom symbol (AAPL, ^NSEI, BTC-USD…) if you need something outside the list."
       >
         <div className="controls">
-          <Field label="Ticker">
-            <input
-              value={ticker}
-              onChange={(e) => setTicker(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && load()}
-              placeholder="RELIANCE.NS"
-              style={{ width: 160 }}
-            />
+          <Field label="Stock">
+            <select
+              value={custom ? "__custom" : ticker}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "__custom") { setCustom(true); return; }
+                setCustom(false);
+                setTicker(v);
+                load(v);
+              }}
+              style={{ maxWidth: 300 }}
+            >
+              {SECTOR_LIST.map((sec) => (
+                <optgroup key={sec} label={sec}>
+                  {bySector(sec).map((s) => (
+                    <option key={s.t} value={s.t}>{s.name} — {s.t}</option>
+                  ))}
+                </optgroup>
+              ))}
+              <option value="__custom">Custom symbol…</option>
+            </select>
           </Field>
+          {custom && (
+            <Field label="Symbol">
+              <input
+                value={ticker}
+                onChange={(e) => setTicker(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && load()}
+                placeholder="AAPL"
+                style={{ width: 160 }}
+              />
+            </Field>
+          )}
           <Field label="Period">
             <select value={period} onChange={(e) => setPeriod(e.target.value)}>
               {PERIODS.map((p) => (

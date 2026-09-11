@@ -7,6 +7,8 @@ import {
   analyzePortfolio, deletePortfolio, listPortfolios, savePortfolio,
 } from "../api.js";
 import Heatmap from "./Heatmap.jsx";
+import { StockPicker } from "./StockPicker.jsx";
+import { NAME_OF, UNIVERSE } from "../universe.js";
 import {
   BENCHMARKS, ErrorNote, Field, Metric, Panel, PERIODS, benchLabel,
   fmtDate, fmtNum, fmtPct, fmtSignedPct, toneOf,
@@ -21,10 +23,14 @@ function avgPairwise(matrix) {
   return n ? sum / n : 0;
 }
 const DEFAULT_ROWS = [
-  { id: 1, ticker: "RELIANCE.NS", weight: 30 },
-  { id: 2, ticker: "TCS.NS", weight: 25 },
-  { id: 3, ticker: "HDFCBANK.NS", weight: 25 },
-  { id: 4, ticker: "INFY.NS", weight: 20 },
+  { id: 1, ticker: "RELIANCE.NS", weight: 20 },
+  { id: 2, ticker: "TCS.NS", weight: 15 },
+  { id: 3, ticker: "HDFCBANK.NS", weight: 15 },
+  { id: 4, ticker: "INFY.NS", weight: 10 },
+  { id: 5, ticker: "ITC.NS", weight: 10 },
+  { id: 6, ticker: "MARUTI.NS", weight: 10 },
+  { id: 7, ticker: "SUNPHARMA.NS", weight: 10 },
+  { id: 8, ticker: "LT.NS", weight: 10 },
 ];
 
 export default function PortfolioLab() {
@@ -45,8 +51,6 @@ export default function PortfolioLab() {
 
   const setRow = (id, patch) =>
     setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
-  const addRow = () =>
-    setRows((rs) => [...rs, { id: nextId++, ticker: "", weight: 10 }]);
   const removeRow = (id) => setRows((rs) => rs.filter((r) => r.id !== id));
 
   const holdings = () =>
@@ -113,33 +117,51 @@ export default function PortfolioLab() {
     <>
       <Panel
         title="Portfolio lab"
-        sub="Enter holdings with relative weights (they’re normalised for you), pick a benchmark and a risk-free rate, and run a full risk-and-return report."
+        sub="Pick holdings from a 100-stock NSE universe (weights are normalised for you), choose a benchmark and risk-free rate, and run a full risk-and-return report."
       >
-        {rows.map((r) => (
-          <div className="controls" key={r.id}>
-            <Field label="Ticker">
-              <input
-                value={r.ticker}
-                onChange={(e) => setRow(r.id, { ticker: e.target.value })}
-                placeholder="TCS.NS"
-                style={{ width: 150 }}
-              />
-            </Field>
-            <Field label="Weight">
-              <input
-                type="number" min="0" step="1" value={r.weight}
-                onChange={(e) => setRow(r.id, { weight: e.target.value })}
-                style={{ width: 90 }}
-              />
-            </Field>
-            <button className="linklike danger" onClick={() => removeRow(r.id)}>
-              Remove
-            </button>
-          </div>
-        ))}
-        <div className="controls">
-          <button className="ghost" onClick={addRow}>Add holding</button>
+        <div className="rows-scroll">
+          {rows.map((r) => (
+            <div className="controls" key={r.id}>
+              <div className="row-ticker">
+                <span className="row-name">{NAME_OF[r.ticker] ?? r.ticker}</span>
+                <span className="row-sym">{r.ticker}</span>
+              </div>
+              <Field label="Weight">
+                <input
+                  type="number" min="0" step="1" value={r.weight}
+                  onChange={(e) => setRow(r.id, { weight: e.target.value })}
+                  style={{ width: 90 }}
+                />
+              </Field>
+              <button className="linklike danger" onClick={() => removeRow(r.id)}>
+                Remove
+              </button>
+            </div>
+          ))}
         </div>
+        <div className="controls">
+          <StockPicker
+            prompt="Add a holding…"
+            exclude={rows.map((r) => r.ticker)}
+            onAdd={(t) => setRows((rs) => [...rs, { id: nextId++, ticker: t, weight: 10 }])}
+          />
+          <button
+            className="ghost"
+            onClick={() => setRows(UNIVERSE.map((s) => ({ id: nextId++, ticker: s.t, weight: 1 })))}
+          >
+            Equal-weight all 100
+          </button>
+          <button
+            className="ghost"
+            onClick={() => setRows(DEFAULT_ROWS.map((r) => ({ ...r, id: nextId++ })))}
+          >
+            Sample 8
+          </button>
+        </div>
+        <p className="note">
+          “All 100” pulls a hundred price histories in one batched request — the first run
+          takes ~15–30 seconds, then it’s cached.
+        </p>
 
         <div className="controls" style={{ marginTop: 10 }}>
           <Field label="Benchmark">

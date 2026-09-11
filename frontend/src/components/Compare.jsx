@@ -3,24 +3,24 @@ import {
   CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 import { compareTickers } from "../api.js";
+import { Chips, StockPicker } from "./StockPicker.jsx";
 import {
   CHART_COLORS, ErrorNote, Field, Panel, PERIODS, fmtDate,
 } from "../ui.jsx";
 
 export default function Compare() {
-  const [input, setInput] = useState("RELIANCE.NS, TCS.NS, ^NSEI");
+  const [sel, setSel] = useState(["RELIANCE.NS", "TCS.NS", "^NSEI"]);
   const [period, setPeriod] = useState("1y");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
 
   async function run() {
-    const tickers = input.split(",").map((t) => t.trim().toUpperCase()).filter(Boolean);
-    if (tickers.length === 0) return;
+    if (sel.length === 0) return;
     setLoading(true);
     setError(null);
     try {
-      setData(await compareTickers(tickers, period));
+      setData(await compareTickers(sel, period));
     } catch (e) {
       setError(e.message);
       setData(null);
@@ -33,16 +33,15 @@ export default function Compare() {
     <>
       <Panel
         title="Compare performance"
-        sub="Every series is rebased to 100 at the start of the window, so different price levels and currencies can be read side by side. Up to six symbols, comma-separated."
+        sub="Every series is rebased to 100 at the start of the window, so different price levels and currencies can be read side by side. Pick up to six symbols — indices included."
       >
         <div className="controls">
-          <Field label="Tickers">
-            <input
-              value={input} onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && run()}
-              style={{ width: 340, maxWidth: "72vw" }}
-            />
-          </Field>
+          <StockPicker
+            includeIndices
+            prompt={sel.length < 6 ? "Add a stock or index…" : "Six is the limit"}
+            exclude={sel}
+            onAdd={(t) => sel.length < 6 && setSel([...sel, t])}
+          />
           <Field label="Period">
             <select value={period} onChange={(e) => setPeriod(e.target.value)}>
               {PERIODS.map((p) => (
@@ -50,10 +49,11 @@ export default function Compare() {
               ))}
             </select>
           </Field>
-          <button className="btn" onClick={run} disabled={loading}>
+          <button className="btn" onClick={run} disabled={loading || sel.length === 0}>
             {loading ? "Loading…" : "Compare"}
           </button>
         </div>
+        <Chips items={sel} onRemove={(t) => setSel(sel.filter((x) => x !== t))} />
         {error && <ErrorNote>{error}</ErrorNote>}
       </Panel>
 

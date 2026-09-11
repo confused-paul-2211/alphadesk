@@ -4,12 +4,15 @@ import {
   Tooltip, XAxis, YAxis, ZAxis,
 } from "recharts";
 import { getFrontier } from "../api.js";
+import { Chips, StockPicker } from "./StockPicker.jsx";
 import { ErrorNote, Field, Panel, PERIODS, fmtNum, fmtPct } from "../ui.jsx";
 
 const toPct = (p) => ({ ...p, vol: p.vol * 100, ret: p.ret * 100 });
 
 export default function Frontier() {
-  const [input, setInput] = useState("RELIANCE.NS, TCS.NS, HDFCBANK.NS, INFY.NS, ITC.NS");
+  const [sel, setSel] = useState([
+    "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "INFY.NS", "ITC.NS",
+  ]);
   const [period, setPeriod] = useState("1y");
   const [riskFree, setRiskFree] = useState("6.0");
   const [loading, setLoading] = useState(false);
@@ -17,15 +20,14 @@ export default function Frontier() {
   const [data, setData] = useState(null);
 
   async function run() {
-    const tickers = input.split(",").map((t) => t.trim().toUpperCase()).filter(Boolean);
-    if (tickers.length < 2) {
-      setError("The frontier needs at least two tickers.");
+    if (sel.length < 2) {
+      setError("The frontier needs at least two stocks — add more from the dropdown.");
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      setData(await getFrontier(tickers, period, (Number(riskFree) || 0) / 100));
+      setData(await getFrontier(sel, period, (Number(riskFree) || 0) / 100));
     } catch (e) {
       setError(e.message);
       setData(null);
@@ -43,16 +45,14 @@ export default function Frontier() {
     <>
       <Panel
         title="Efficient frontier"
-        sub="A Monte Carlo sketch of Markowitz portfolio theory: 2,500 random long-only weightings of your tickers, plotted by annualised risk and return. The upper-left edge of the cloud is the efficient frontier."
+        sub="A Monte Carlo sketch of Markowitz portfolio theory: 2,500 random long-only weightings of your chosen stocks (pick 2–10), plotted by annualised risk and return. The upper-left edge of the cloud is the efficient frontier."
       >
         <div className="controls">
-          <Field label="Tickers (2–10, comma-separated)">
-            <input
-              value={input} onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && run()}
-              style={{ width: 380, maxWidth: "72vw" }}
-            />
-          </Field>
+          <StockPicker
+            prompt={sel.length < 10 ? "Add a stock (2–10)…" : "Ten is the limit"}
+            exclude={sel}
+            onAdd={(t) => sel.length < 10 && setSel([...sel, t])}
+          />
           <Field label="Risk-free (% p.a.)">
             <input type="number" step="0.1" min="0" value={riskFree}
               onChange={(e) => setRiskFree(e.target.value)} style={{ width: 90 }} />
@@ -68,6 +68,7 @@ export default function Frontier() {
             {loading ? "Simulating…" : "Draw frontier"}
           </button>
         </div>
+        <Chips items={sel} onRemove={(t) => setSel(sel.filter((x) => x !== t))} />
         {error && <ErrorNote>{error}</ErrorNote>}
       </Panel>
 

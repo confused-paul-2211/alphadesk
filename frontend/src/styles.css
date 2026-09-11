@@ -302,3 +302,14 @@ footer {
   vertical-align: middle;
   transform: translateY(-4px);
 }
+
+/* ---- dropdown-first controls (100-stock universe) ---- */
+.rows-scroll { max-height: 320px; overflow-y: auto; padding-right: 4px; }
+.row-ticker { display: flex; flex-direction: column; min-width: 230px; }
+.row-name { font-weight: 600; font-size: 14px; }
+.row-sym { color: var(--muted); font-size: 12px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 2px; }
+.chip { background: var(--panel, #F6F8F4); border: 1px solid var(--rule); border-radius: 14px;
+        padding: 4px 6px 4px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 2px; }
+.chip-x { background: none; border: none; color: var(--muted); font-size: 15px; cursor: pointer; padding: 0 4px; }
+.chip-x:hover { color: var(--neg, #C4442C); }
